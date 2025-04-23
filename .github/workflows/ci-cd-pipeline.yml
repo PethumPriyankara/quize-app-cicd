@@ -1,0 +1,36 @@
+name: CI/CD Pipeline
+on:
+  push:
+    branches:
+      - main  # Change this to your branch name
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # Step to checkout the repository
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'  # Set Node.js version you are using
+
+    - name: Install dependencies
+      run: npm install  # Install dependencies using npm
+
+    - name: Build the app
+      run: npm run build  # Run the build script (ensure your build script is set up in package.json)
+
+    - name: Deploy to Netlify
+      run: |
+        curl -sL https://github.com/netlify/cli/releases/download/v7.2.0/netlify-cli-linux-x64.tar.gz | tar xz -C /usr/local/bin
+        netlify deploy --prod --dir=dist  # Path to the build output folder (e.g., dist or build)
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
